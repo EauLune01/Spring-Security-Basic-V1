@@ -1,0 +1,21 @@
+/**
+ * ✅ @Secured vs @PreAuthorize
+ *
+ * 1) @Secured
+ *    - 특정 권한(ROLE_)만 체크할 때 사용
+ *    - 예: @Secured("ROLE_ADMIN")
+ *    - 여러 권한 지정 가능: @Secured({"ROLE_ADMIN", "ROLE_MANAGER"})
+ *    - ROLE_ prefix 반드시 포함해야 함
+ *    - 단순 권한 체크만 가능 (SpEL 지원 ❌)
+ *
+ * 2) @PreAuthorize
+ *    - SpEL(Spring Expression Language) 지원 (논리연산, 조건문 사용 가능)
+ *    - 예: @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+ *    - hasAnyRole("ADMIN", "MANAGER") 같이 간단히 여러 권한 지정 가능
+ *    - ROLE_ prefix는 자동으로 붙음 → DB에는 ROLE_ADMIN 저장, 코드에서는 hasRole("ADMIN")만 써도 됨
+ *    - 복잡한 조건 제어 가능 (예: @PreAuthorize("#id == principal.id"))
+ *
+ * 👉 정리:
+ *    - 단순히 ROLE 체크만 할 때 → @Secured
+ *    - 여러 권한/조건/논리 연산 필요할 때 → @PreAuthorize
+ */
