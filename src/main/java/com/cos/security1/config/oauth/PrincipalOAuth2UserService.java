@@ -1,5 +1,8 @@
 package com.cos.security1.config.oauth;
 
+import com.cos.security1.config.oauth.provider.FacebookUserInfo;
+import com.cos.security1.config.oauth.provider.GoogleUserInfo;
+import com.cos.security1.config.oauth.provider.OAuth2UserInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -22,14 +25,24 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         // 구글 로그인 프로필 조회
-        OAuth2User oAuth2User = super.loadUser(userRequest);
+        OAuth2User oAuth2User= super.loadUser(userRequest);
 
         // code를 통해 구성한 정보
-        String provider = userRequest.getClientRegistration().getClientId(); // 예: google
-        String providerId = oAuth2User.getAttribute("sub");
+        OAuth2UserInfo oAuth2UserInfo=null;
+        if(userRequest.getClientRegistration().getRegistrationId().equals("google")) {
+            System.out.println("구글 로그인 요청");
+            oAuth2UserInfo=new GoogleUserInfo(oAuth2User.getAttributes());
+        } else if(userRequest.getClientRegistration().getRegistrationId().equals("facebook")){
+            System.out.println("페이스북 로그인 요청");
+            oAuth2UserInfo=new FacebookUserInfo(oAuth2User.getAttributes());
+        } else{
+            System.out.println("우리는 구글과 페이스북, 네이버 로그인만 지원합니다.");
+        }
+        String provider = oAuth2UserInfo.getProvider(); // 예: google/facebook
+        String providerId = oAuth2UserInfo.getProviderId();
         String username = provider + "_" + providerId;
         String password = bCryptPasswordEncoder.encode("defaultPassword"); // 예시 비밀번호
-        String email = oAuth2User.getAttribute("email");
+        String email = oAuth2UserInfo.getEmail();
         String role = "ROLE_USER";
 
         // 이미 사용자 존재하는지 확인
@@ -45,6 +58,8 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
                     .providerId(providerId)
                     .build();
             userRepository.save(userEntity);
+        } else {
+            System.out.println("이미 로그인을 한 적이 있습니다. 당신은 자동회원가입이 되어 있습니다.");
         }
 
         return new PrincipalDetails(userEntity, oAuth2User.getAttributes()); // 인증된 사용자 반환
