@@ -19,3 +19,13 @@
  *    - 단순히 ROLE 체크만 할 때 → @Secured
  *    - 여러 권한/조건/논리 연산 필요할 때 → @PreAuthorize
  */
+
+ /**
+  * ✅ URL 보안 vs 메서드 보안
+  *
+  * - http.authorizeHttpRequests : 경로 단위 접근 제어 (컨트롤러 진입 전 필터에서 막음)
+  * - @Secured / @PreAuthorize   : 메서드 단위 세밀 제어 (비즈니스 로직 단위 보안)
+  *
+  * 👉 단순히 /admin/**, /manager/** 같은 패턴만 막으면 http 설정만으로 충분
+  * 👉 메서드별/조건부 권한 제어 필요할 때는 @Secured, @PreAuthorize 사용
+  */
